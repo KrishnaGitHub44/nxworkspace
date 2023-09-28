@@ -16,7 +16,9 @@ const saveEnergyApp = express();
 // dailyJobRunner to increament simulated date and update the deposites to balance
 
 let lastSimulatedDay = 0;
-const period = 5;
+const period = 5; // Currently set period as 5 for testing, it should be 30 days in real time.
+
+// ********* Scheduller Job is set for Every min for my testing , it should be '55 23 * * *' which means it runs every day midnight.
 
 (async function() {
     scheduleJob('*/1 * * * *', async function() {
@@ -382,12 +384,12 @@ interface interest {
   effectfrom: number
 }
 
-const Interest:interest = { currentrate: 0.00, effectfrom : 0}
+const Interest:interest = { lastrate: 0.05, currentrate: 0.05, effectfrom : 0}
 
 const calculateInterest = (lastSimulatedDay:number) => {
   const noOfDaysWithNewRate = lastSimulatedDay - Interest.effectfrom;
   //console.log("No Of Days with new rate: ",noOfDaysWithNewRate)
-  if((noOfDaysWithNewRate) < period) {
+  if((noOfDaysWithNewRate) < period && noOfDaysWithNewRate > 0) {
     Accounts.forEach((account,index) => {
       const interestOnSavings = (noOfDaysWithNewRate/30 * account.balance * Interest.currentrate * 30/365) + ((30 - noOfDaysWithNewRate)/30* account.balance * Interest.lastrate * 30/365);
       Accounts[index].balance += interestOnSavings;
